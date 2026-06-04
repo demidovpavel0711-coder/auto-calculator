@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Calculator PRO</title>
+
+<style>
+body{
+    background:#111827;
+    color:white;
+    font-family:Arial,sans-serif;
+    max-width:600px;
+    margin:auto;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+    background:#2563eb;
+    color:white;
+}
+
+#result{
+    margin-top:20px;
+    background:#1f2937;
+    padding:15px;
+    border-radius:10px;
+    white-space:pre-line;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>🚗 Auto Calculator PRO</h1>
+
+<input id="price" placeholder="Цена авто под ключ (₸)">
+<input id="logistics" placeholder="Логистика (₸)">
+<input id="engine" placeholder="Объем двигателя (см³)">
+<input id="year" placeholder="Год выпуска">
+
+<button onclick="calculate()">РАССЧИТАТЬ</button>
+
+<div id="result"></div>
+
+<script>
+
+function money(value){
+    return Math.round(value).toLocaleString('ru-RU');
+}
+
+function calculate(){
+
+    let total_price = Number(document.getElementById("price").value);
+    let logistics = Number(document.getElementById("logistics").value);
+    let engine = Number(document.getElementById("engine").value);
+    let year = Number(document.getElementById("year").value);
+
+    let age = 2026 - year;
+
+    let util = 0;
+
+    if(engine <= 1000)
+        util = 324375;
+    else if(engine <= 2000)
+        util = 756875;
+    else if(engine <= 3000)
+        util = 1081250;
+    else
+        util = 2486875;
+
+    let primary = 0;
+
+    if(age < 2)
+        primary = 1081;
+    else if(age <= 3)
+        primary = 216250;
+    else
+        primary = 2162500;
+
+    let net = total_price - logistics - util - primary;
+
+    let customs = (net / 115) * 15;
+
+    let car_price = net - customs;
+
+    let customs_total = customs + util;
+
+    let total =
+        car_price +
+        customs +
+        util +
+        primary +
+        logistics;
+
+    document.getElementById("result").innerText =
+`📊 РАСЧЁТ ПО АВТОМОБИЛЮ
+
+💰 Растаможка:
+(пошлина ${money(customs)} ₸ + утиль ${money(util)} ₸)
+
+= ${money(customs_total)} ₸
+
+🚗 Стоимость автомобиля: ${money(car_price)} ₸
+
+📄 Первичная регистрация: ${money(primary)} ₸
+
+🚚 Логистика: ${money(logistics)} ₸
+
+━━━━━━━━━━━━━━━
+
+🔥 ИТОГО ПОД КЛЮЧ: ${money(total)} ₸`;
+}
+
+</script>
+
+</body>
+</html>
