@@ -4,9 +4,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Auto Calculator PRO</title>
+
+<title>Калькулятор растаможки</title>
 
 <style>
+*{
+    box-sizing:border-box;
+}
+
 body{
     background:#111827;
     color:white;
@@ -14,19 +19,28 @@ body{
     max-width:600px;
     margin:auto;
     padding:20px;
+    overflow-x:hidden;
 }
 
-h1{
+.logo{
     text-align:center;
+    margin-bottom:20px;
+}
+
+.logo img{
+    width:180px;
+    height:180px;
+    object-fit:cover;
+    border-radius:20px;
 }
 
 input{
     width:100%;
-    padding:12px;
+    padding:14px;
     margin-top:10px;
     border:none;
     border-radius:10px;
-    font-size:16px;
+    font-size:18px;
 }
 
 button{
@@ -37,8 +51,15 @@ button{
     border-radius:10px;
     font-size:16px;
     cursor:pointer;
-    background:#2563eb;
     color:white;
+}
+
+.calc-btn{
+    background:#2563eb;
+}
+
+.copy-btn{
+    background:#16a34a;
 }
 
 #result{
@@ -47,6 +68,7 @@ button{
     padding:15px;
     border-radius:10px;
     white-space:pre-line;
+    font-size:16px;
 }
 </style>
 
@@ -54,18 +76,56 @@ button{
 
 <body>
 
-<h1>🚗 Auto Calculator PRO</h1>
+<div class="logo">
+    <img src="logo.jpg" alt="logo">
+</div>
 
-<input id="price" placeholder="Цена авто под ключ (₸)">
-<input id="logistics" placeholder="Логистика (₸)">
-<input id="engine" placeholder="Объем двигателя (см³)">
-<input id="year" placeholder="Год выпуска">
+<input
+id="price"
+type="tel"
+placeholder="Цена авто под ключ (₸)"
+oninput="formatInput(this)"
 
-<button onclick="calculate()">РАССЧИТАТЬ</button>
+>
+
+<input
+id="logistics"
+type="tel"
+placeholder="Логистика (₸)"
+oninput="formatInput(this)"
+
+>
+
+<input
+id="engine"
+type="number"
+placeholder="Объем двигателя (см³)"
+
+>
+
+<input
+id="year"
+type="number"
+placeholder="Год выпуска"
+
+>
+
+<button class="calc-btn" onclick="calculate()">
+РАССЧИТАТЬ
+</button>
+
+<button class="copy-btn" onclick="copyResult()">
+📋 СКОПИРОВАТЬ РАСЧЕТ
+</button>
 
 <div id="result"></div>
 
 <script>
+
+function formatInput(input){
+    let value = input.value.replace(/\D/g,'');
+    input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+}
 
 function money(value){
     return Math.round(value).toLocaleString('ru-RU');
@@ -73,14 +133,32 @@ function money(value){
 
 function calculate(){
 
-    let total_price = Number(document.getElementById("price").value);
-    let logistics = Number(document.getElementById("logistics").value);
-    let engine = Number(document.getElementById("engine").value);
-    let year = Number(document.getElementById("year").value);
+    let total_price = Number(
+        document.getElementById("price").value.replace(/\s/g,"")
+    );
 
-    let age = 2026 - year;
+    let logistics = Number(
+        document.getElementById("logistics").value.replace(/\s/g,"")
+    );
 
-    let util = 0;
+    let engine = Number(
+        document.getElementById("engine").value
+    );
+
+    let year = Number(
+        document.getElementById("year").value
+    );
+
+    if(!total_price || !logistics || !engine || !year){
+        alert("Заполните все поля");
+        return;
+    }
+
+    let currentYear = new Date().getFullYear();
+
+    let age = currentYear - year;
+
+    let util;
 
     if(engine <= 1000)
         util = 324375;
@@ -91,7 +169,7 @@ function calculate(){
     else
         util = 2486875;
 
-    let primary = 0;
+    let primary;
 
     if(age < 2)
         primary = 1081;
@@ -108,12 +186,7 @@ function calculate(){
 
     let customs_total = customs + util;
 
-    let total =
-        car_price +
-        customs +
-        util +
-        primary +
-        logistics;
+    let total = car_price + customs + util + primary + logistics;
 
     document.getElementById("result").innerText =
 `📊 РАСЧЁТ ПО АВТОМОБИЛЮ
@@ -123,15 +196,33 @@ function calculate(){
 
 = ${money(customs_total)} ₸
 
-🚗 Стоимость автомобиля: ${money(car_price)} ₸
+🚗 Стоимость автомобиля:
+${money(car_price)} ₸
 
-📄 Первичная регистрация: ${money(primary)} ₸
+📄 Первичная регистрация:
+${money(primary)} ₸
 
-🚚 Логистика: ${money(logistics)} ₸
+🚚 Логистика:
+${money(logistics)} ₸
 
 ━━━━━━━━━━━━━━━
 
-🔥 ИТОГО ПОД КЛЮЧ: ${money(total)} ₸`;
+🔥 ИТОГО ПОД КЛЮЧ:
+${money(total)} ₸`;
+}
+
+function copyResult(){
+
+    let text = document.getElementById("result").innerText;
+
+    if(!text){
+        alert("Сначала выполните расчет");
+        return;
+    }
+
+    navigator.clipboard.writeText(text);
+
+    alert("Расчет скопирован");
 }
 
 </script>
